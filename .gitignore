@@ -1,0 +1,22 @@
+# 语音数据目录（用户自行下载，不入仓库）
+sgs_voices/
+
+# 爬取过程中的临时文件
+download_record.txt
+*_with_links.xlsx
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# 系统文件
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
