@@ -1,8 +1,8 @@
-name: astrbot_plugin_xgs_voice
+name: 三国杀语音
 desc: 一个 AstrBot 插件，用于识别语音包文件夹名称或语音包含的关键词，自动发送对应的语音片段，已内置三国杀台词。
 version: v1.4.0
-author: 落日七号、复读机长
-repo: https://github.com/kvrry/astrbot_plugin_xgs_voice
+author: kkvrry
+repo: https://github.com/kkvrry/astrbot_plugin_xgs_voice.git
 support_platforms:
   - aiocqhttp
   - qq_official
