@@ -1,5 +1,5 @@
 # 语音数据目录（用户自行下载，不入仓库）
-sgs_voices/
+voice/
 
 # 爬取过程中的临时文件
 download_record.txt

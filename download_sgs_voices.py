@@ -7,13 +7,13 @@ import random
 from urllib.parse import quote
 from pathlib import Path
 
-def download_sgs_voices(excel_path, output_dir="sgs_voices"):
+def download_sgs_voices(excel_path, output_dir="voice/sgs_voices"):
     """
     从三国杀Wiki下载武将台词语音
     
     参数:
         excel_path: Excel文件路径（三国杀.xlsx，"全部"工作表包含武将名列表）
-        output_dir: 语音输出目录（插件运行时从此目录读取，默认为 sgs_voices）
+        output_dir: 语音输出目录（插件运行时从此目录读取，默认为 voice/sgs_voices，与插件目录结构一致）
     """
     
     # 设置请求头模拟真人浏览器
@@ -260,7 +260,7 @@ if __name__ == "__main__":
     #   1. 安装依赖: pip install pandas openpyxl requests
     #   2. 确保 三国杀.xlsx 在当前目录
     #   3. 运行: python download_sgs_voices.py
-    #   4. 语音文件将下载到 sgs_voices/ 目录
+    #   4. 语音文件将下载到 voice/sgs_voices/ 目录
     #   5. 支持断点续传，中断后重新运行会自动跳过已下载的武将
     excel_file = "三国杀.xlsx"
-    download_sgs_voices(excel_file, output_dir="sgs_voices")
+    download_sgs_voices(excel_file, output_dir="voice/sgs_voices")

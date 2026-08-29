@@ -1,6 +1,6 @@
-name: 三国杀语音
-desc: 一个 AstrBot 插件，用于识别语音包文件夹名称或语音包含的关键词，自动发送对应的语音片段，已内置三国杀台词。
-version: v1.4.0
+name: 通用语音
+desc: 一个 AstrBot 插件，按语音库/角色名/台词关键词自动发送对应语音，支持多语音库、外部库目录与 mp3/wav/m4a 格式（默认内置三国杀语音库）。
+version: v1.6.1
 author: kkvrry
 repo: https://github.com/kkvrry/astrbot_plugin_xgs_voice.git
 support_platforms:

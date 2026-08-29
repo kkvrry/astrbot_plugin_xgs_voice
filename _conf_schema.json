@@ -71,5 +71,35 @@
     "type": "float",
     "hint": "关键词模糊匹配的灵敏度（0-1，默认 0.6，越高越严格）",
     "default": 0.6
+  },
+  "audio_root": {
+    "description": "语音库大目录",
+    "type": "string",
+    "hint": "语音库的根目录（相对插件目录或绝对路径），其下每个一级文件夹视为一个语音库。默认 voice，即 voice/sgs_voices、voice/其它库 的结构；留空则自动检测 voice/ 或插件目录",
+    "default": "voice"
+  },
+  "default_lib": {
+    "description": "默认语音库目录",
+    "type": "string",
+    "hint": "默认语音库（三国杀）所在目录，自动检测不到语音库时作为兜底；相对插件目录或绝对路径",
+    "default": "voice/三国杀"
+  },
+  "extra_lib_dirs": {
+    "description": "额外语音库目录列表",
+    "type": "list",
+    "hint": "在 voice/ 自动识别之外追加的语音库目录，每项为一个库目录（其下为角色文件夹，如某个 sgs 式库）或包含多个库的大目录；支持相对插件目录或绝对路径，可与 voice/ 下的库混用",
+    "default": []
+  },
+  "min_keyword_len": {
+    "description": "关键词最短长度",
+    "type": "int",
+    "hint": "过滤过短的台词关键词，避免「杀」「死」等单字词误触发（默认 2，设为 1 关闭过滤）",
+    "default": 2
+  },
+  "cache_max_days": {
+    "description": "合并缓存保留天数",
+    "type": "int",
+    "hint": "自动清理超过该天数的合并音频缓存，避免数据目录无限增长（默认 30，设为 0 关闭清理）",
+    "default": 30
   }
 }
