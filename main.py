@@ -416,19 +416,31 @@ class VoiceManager:
         """
         匹配关键词（支持模糊匹配）
         返回: (audio_path, keyword) 或 None
+
+        双向包含（kw in message / message in kw）合并择优：
+        按重合文本长度降序，重合相同时按 完全相等 > 消息包含关键词 > 关键词包含消息 优先，
+        避免短关键词（如「哈基米」）抢先于更长更具体的命中（如「哈基米的约定」）。
         """
         message = message.lower()
 
-        # 1. 精确匹配 (双向包含)，多条命中时随机选择，避免固定取第一个
-        hits = [(p, kw) for kw, p in self.keyword_map if kw.lower() in message]
+        # 1+2. 双向包含，择优而非随机
+        hits = []  # (overlap_len, priority, path, keyword)
+        for kw, p in self.keyword_map:
+            k = kw.lower()
+            if k in message:
+                # 关键词包含于消息：重合长度 = 关键词长度；完全相等优先级最高
+                hits.append((len(k), 0 if k == message else 1, p, kw))
+            elif message in k:
+                # 消息包含于关键词：重合长度 = 消息长度
+                hits.append((len(message), 2, p, kw))
         if hits:
-            return random.choice(hits)
-
-        # 2. 关键词包含消息 (用户只说了片段，且片段长度足够)
-        if len(message) >= 2:
-            hits = [(p, kw) for kw, p in self.keyword_map if message in kw.lower()]
-            if hits:
-                return random.choice(hits)
+            best_overlap = max(h[0] for h in hits)
+            best_priority = min(h[1] for h in hits if h[0] == best_overlap)
+            candidates = [
+                (p, kw) for ov, pr, p, kw in hits
+                if ov == best_overlap and pr == best_priority
+            ]
+            return random.choice(candidates)
 
         # 3. 模糊匹配：bigram 粗筛 + quick_ratio 预过滤 + SequenceMatcher 精算
         #    仅当消息长度适中时尝试，避免对极短或极长消息进行昂贵计算
