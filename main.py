@@ -1071,37 +1071,73 @@ class SgsVoiceMeme(Star):
 • /v help - 帮助
 • /v list - 列出所有语音库
 • /v list <库名> - 指定语音库的角色列表图片
+• /v list <库名> <角色名> - 列出该角色文件夹下的音频文件（也可只输角色名全库查找）
 • /v stats - 统计
 • /v reload - 重载配置和音频
 """
         yield event.plain_result(help_text)
 
     @v_group.command("list")
-    async def v_list(self, event: AstrMessageEvent, lib: str = ""):
-        """无参数：列出所有语音库及其角色数；带库名：发送该语音库的角色列表图片"""
+    async def v_list(self, event: AstrMessageEvent, lib: str = "", role: str = ""):
+        """
+        三级查询：
+        /v list                  - 列出所有语音库
+        /v list <库名>            - 该语音库的角色列表图片
+        /v list <库名> <角色名>   - 列出该角色文件夹下的音频文件（台词）
+        /v list <角色名>          - 角色名不在库名位置时，全库查找该角色并列出音频文件
+        """
         lib = (lib or "").strip()
+        role = (role or "").strip()
+
+        # 1. 无参数：语音库列表
         if not lib:
             lines = ["🎭 语音库列表"]
             for cat in self.voice_manager.category_order:
                 role_count = len(self.voice_manager.categories.get(cat, {}))
                 lines.append(f"• {cat}（{role_count} 位角色）")
-            lines.append("\n发送「角色列表」查看全部角色，「/v list <库名>」查看对应库角色图片")
+            lines.append("\n发送「角色列表」查看全部角色；「/v list <库名>」看库角色；「/v list <库名> <角色名>」看角色音频文件")
             yield event.plain_result('\n'.join(lines))
             return
 
-        if lib not in self.voice_manager.category_order:
-            yield event.plain_result(f"❌ 未找到语音库「{lib}」，可用「/v list」查看全部语音库")
+        # 2. 第一个参数是库名
+        if lib in self.voice_manager.category_order:
+            if role:
+                # 2a. 库名+角色名：列出该角色文件夹下的音频文件
+                files = (self.voice_manager.categories.get(lib, {}) or {}).get(role)
+                if not files:
+                    yield event.plain_result(f"❌ 语音库「{lib}」中没有角色「{role}」，可用「/v list {lib}」查看库内角色")
+                    return
+                lines = [f"🎭 {lib}·{role}（{len(files)} 条音频）"]
+                for i, p in enumerate(files, 1):
+                    lines.append(f"{i}. {self._extract_voice_text(p)}")
+                yield event.plain_result('\n'.join(lines))
+                return
+            # 2b. 仅库名：角色列表图片（现状）
+            img_path = self._generate_role_list_image(lib)
+            if img_path:
+                try:
+                    yield event.chain_result([
+                        Comp.Image(file=img_path)
+                    ])
+                except Exception as e:
+                    yield event.plain_result(f"❌ 图片发送失败: {e}")
+            else:
+                yield event.plain_result("❌ 角色列表图片生成失败，请检查日志或安装 Pillow 库。")
             return
-        img_path = self._generate_role_list_image(lib)
-        if img_path:
-            try:
-                yield event.chain_result([
-                    Comp.Image(file=img_path)
-                ])
-            except Exception as e:
-                yield event.plain_result(f"❌ 图片发送失败: {e}")
-        else:
-            yield event.plain_result("❌ 角色列表图片生成失败，请检查日志或安装 Pillow 库。")
+
+        # 3. 第一个参数不是库名：当作角色名，全库查找
+        files = self.voice_manager.role_map.get(lib)
+        if files:
+            cat = self.voice_manager.role_category.get(lib, "")
+            prefix = f"{cat}·{lib}" if cat else lib
+            lines = [f"🎭 {prefix}（{len(files)} 条音频）"]
+            for i, p in enumerate(files, 1):
+                lines.append(f"{i}. {self._extract_voice_text(p)}")
+            yield event.plain_result('\n'.join(lines))
+            return
+
+        # 4. 都没有命中
+        yield event.plain_result(f"❌ 未找到语音库「{lib}」或角色「{lib}」，可用「/v list」查看全部语音库")
 
     @v_group.command("stats")
     async def v_stats(self, event: AstrMessageEvent):
